@@ -1,0 +1,4 @@
+Nombre Dia Mes Año
+Carolina 2 12 2007
+Bruno 4 12 1996
+Alicia 4 12 1996
