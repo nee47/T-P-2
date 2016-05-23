@@ -1,1 +1,1 @@
-join.o: join.c
+join.o: join.c hash.h
