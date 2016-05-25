@@ -42,6 +42,7 @@ int main(int argc, char** argv){
     exit(1);
   }
   hash_t* hash = hash_crear(free);
+  if(!hash) exit(1);
   ssize_t len1 = 0, len2=0;
   size_t capacidad = 0;
   char* linea1 = NULL;
