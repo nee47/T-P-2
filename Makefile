@@ -11,6 +11,7 @@ all: uniq
 # una parte del TP solamente.
 uniq: uniq.o hash.o 
 join: join.o
+multi-merge: multi-merge.o heap.o
 # Si tac o tail usan un TDA, se debe especificar bien en las lineas anteriores,
 # bien aquí. Ejemplos:
 
