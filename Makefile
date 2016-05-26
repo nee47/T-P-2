@@ -12,6 +12,7 @@ all: uniq
 uniq: uniq.o hash.o 
 join: join.o
 multi-merge: multi-merge.o heap.o
+mediana: mediana.o heap.o pruebas_mediana.o	
 # Si tac o tail usan un TDA, se debe especificar bien en las lineas anteriores,
 # bien aquí. Ejemplos:
 

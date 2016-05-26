@@ -1,0 +1,14 @@
+#include <stdio.h>
+#include <stdlib.h>
+#include "mediana.h"
+
+
+
+int main(){
+  mediana_t* mediana = calculador_mediana_crear();
+  double v1 = 3;
+  calculador_mediana_agregar_valor(mediana, &v1);
+  printf("obtener media es %f\n", calculador_mediana_obtener_mediana(mediana));
+  
+  return 0;
+}

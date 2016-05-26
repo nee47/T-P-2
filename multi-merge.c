@@ -21,21 +21,32 @@ int main(int argc, char** argv){
   
   heap_t* heap = heap_crear(comparar);
   if(!heap) exit(1);
-  
-  while(argv[i]){
-    FILE* archivo = fopen(argv[i], "r");
-    if(!archivo) exit(1);
-    while(getline(&linea, &capacidad, archivo) > 0){
-      if(!heap_encolar(heap, linea)){
+  FILE** archivo = malloc(sizeof(FILE*) * argc); 
+  for(size_t a = 0; a < argc-1; a++){
+    archivo[a] = fopen(argv[i], "r");
+    if(!archivo[a]) exit(1);   
+  }
+  bool fin = false;
+  //FILE* archivo = fopen(argv[i], "r");
+  //if(!archivo) exit(1);
+  while(!fin){ 
+    for(size_t i = 0; i < argc-1; i++ ){
+      if (getline(&linea, &capacidad, archivo[i]) <= 0) fin = true;
+      if(!fin && !heap_encolar(heap, linea)){
 	heap_destruir(heap, NULL);
 	fclose(archivo);
 	exit(1);
       } 
-      linea = NULL;  
+      if(heap_ver_tope(heap))
     }
-    fclose(archivo);
-    i++;
+    char* aux = heap_desencolar(heap);
+    printf("%s", aux);
+   
   }
+  
+  fclose(archivo);
+  i++;
+  
   free(linea);
   while(!heap_esta_vacio(heap)){
     char* aux = heap_desencolar(heap);
