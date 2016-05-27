@@ -78,4 +78,7 @@ void abb_iter_in_destruir(abb_iter_t* iter);
 
 void abb_in_order(abb_t *arbol, bool visitar(const char *, void *, void *), void *extra);
 
+abb_iter_t* abb_iter_crear_desde(abb_t* arbol, const char* clave_desde, const char* clave_hasta);
+
+
 #endif // ABB_H

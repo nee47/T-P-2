@@ -41,18 +41,12 @@ int main(int argc, char** argv){
     }
     char* aux = heap_desencolar(heap);
     printf("%s", aux);
-   
   }
   
-  fclose(archivo);
   i++;
   
   free(linea);
-  while(!heap_esta_vacio(heap)){
-    char* aux = heap_desencolar(heap);
-    printf("%s", aux);
-    free(aux);
-  }
+  
   heap_destruir(heap, NULL);
   return 0;
 }

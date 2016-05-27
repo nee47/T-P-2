@@ -4,7 +4,7 @@
 #include <stdbool.h>
 #include <stddef.h>
 
-struct mediana;
+struct mediana;x
 typedef struct mediana mediana_t;
 
 mediana_t* calculador_mediana_crear();

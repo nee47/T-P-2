@@ -23,6 +23,10 @@ struct abb{
 };
 
 struct abb_iter{
+  char* clave_hasta;
+  char* clave_desde;
+  const char* clave_anterior;
+  abb_comparar_clave_t cmp;
   pila_t* pila;
 };
 
@@ -249,16 +253,30 @@ abb_iter_t *abb_iter_in_crear(const abb_t *abb){
   abb_iter_t* iter = malloc(sizeof(abb_iter_t));
   if (!iter) return NULL;
   iter->pila = pila_crear(); 
+  iter->clave_desde = NULL;
+  iter->clave_hasta = NULL;
   if (abb->cantidad_nodos == 0) return iter;
   apilar_nodos(iter, abb->raiz);
   return iter;
 }
 
+void vaciar_pila(pila_t* pila){
+  while(!pila_esta_vacia(pila)) pila_desapilar(pila);
+}
 // Avanza iterador
 bool abb_iter_in_avanzar(abb_iter_t *iter){
+  bool fin = false;
   if(abb_iter_in_al_final(iter)) return false;
   abb_nodo_t* desapilado  = pila_desapilar(iter->pila);
-  if(desapilado->derecha) apilar_nodos(iter, desapilado->derecha);
+  int res = iter->cmp(desapilado->clave, iter->clave_hasta);  
+  if(iter->clave_hasta){ 
+    if(res == 0 || res > 0 ){
+      vaciar_pila(iter->pila);
+      //pila_apilar(iter->pila, desapilado);
+      fin = true;
+    }
+  }
+  if(!fin && desapilado->derecha) apilar_nodos(iter, desapilado->derecha);
   return true;
 }
 
@@ -276,6 +294,8 @@ bool abb_iter_in_al_final(const abb_iter_t *iter){
 
 // Destruye iterador
 void abb_iter_in_destruir(abb_iter_t* iter){
+  free(iter->clave_desde);
+  if(iter->clave_hasta) free(iter->clave_hasta);
   pila_destruir(iter->pila);
   free(iter);
 }
@@ -291,12 +311,25 @@ void abb_in_order(abb_t *arbol, bool visitar(const char *, void *, void *), void
   in_orden(arbol->raiz, visitar, extra);
 }
 
-
 abb_iter_t* abb_iter_crear_desde(abb_t* arbol, const char* clave_desde, const char* clave_hasta){
-  abb_iter_t* iter = malloc(sizeof(abb_iter_t));
+  abb_iter_t* iter = abb_iter_in_crear(arbol);
   if(!iter) return NULL;
-  iter->pila = pila_crear();
-  if(abb->cantidad_nodos == 0) return iter;
-  apilar_nodos
+  iter->cmp = arbol->cmp; 
+  iter->clave_desde = strdup(clave_desde);
+  if(clave_hasta) iter->clave_hasta = strdup(clave_hasta);
+  bool fin = false;
+  
+  if(arbol->cmp(clave_desde, clave_hasta) > 0) vaciar_pila(iter->pila);
+  else{
+    while(!fin){
+      abb_nodo_t* desapilado  = pila_desapilar(iter->pila);
+      int res = arbol->cmp(desapilado->clave, clave_desde);
+      if( res == 0  || res > 0 ){
+	pila_apilar(iter->pila, desapilado); 
+	fin = true;
+      }
+      if(!fin && desapilado->derecha) apilar_nodos(iter, desapilado->derecha);
+    }
+  }
   return iter;
 } 
