@@ -4,10 +4,10 @@
 
 //void pruebas_bascas
 
-
+// 1.5  3  4  7 9  10  13   50 
 int main(){
   mediana_t* mediana = calculador_mediana_crear();
-  double v1 = 3 , v2 = 4, v3 = 10, v4 = 7;
+  double v1 = 3 , v2 = 4, v3 = 10, v4 = 7; // 50
   calculador_mediana_agregar_valor(mediana, v1);
   //v2 = calculador_mediana_obtener_mediana(mediana);
   printf("obtener media es %f\n", calculador_mediana_obtener_mediana(mediana));
@@ -28,7 +28,10 @@ int main(){
 
   calculador_mediana_agregar_valor(mediana, 9);
   printf("obtener media es %f\n", calculador_mediana_obtener_mediana(mediana));
-  
+
+  calculador_mediana_agregar_valor(mediana, 'a');
+  printf("obtener media es %f\n", calculador_mediana_obtener_mediana(mediana));
+
   calculador_mediana_destruir(mediana);
   return 0;
 }

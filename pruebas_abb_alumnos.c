@@ -34,7 +34,8 @@ void primera_prueba(){
   }
   abb_iter_in_destruir(iter);
   
-  iter = abb_iter_crear_desde(abb, "10", "5");
+  
+iter = abb_iter_crear_desde(abb, "10", "5");
   print_test("iter al final", abb_iter_in_al_final(iter));
   print_test("iter ver actual NULL", !abb_iter_in_ver_actual(iter));
   abb_iter_in_destruir(iter);
