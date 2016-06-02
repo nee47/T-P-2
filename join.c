@@ -42,7 +42,11 @@ int main(int argc, char** argv){
     exit(1);
   }
   hash_t* hash = hash_crear(free);
-  if(!hash) exit(1);
+  if(!hash){
+    fclose(archivo1);
+    fclose(archivo2);
+    exit(1);
+  }
   ssize_t len1 = 0, len2=0;
   size_t capacidad = 0;
   char* linea1 = NULL;
@@ -51,6 +55,8 @@ int main(int argc, char** argv){
     char* campo_1 = campo1(linea2);
     if(!hash_guardar(hash, campo_1, linea2)){
       hash_destruir(hash);
+      fclose(archivo1);
+      fclose(archivo2);
       exit(1);
     }
     free(campo_1);

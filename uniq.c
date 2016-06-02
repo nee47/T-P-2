@@ -18,6 +18,10 @@ int main(int argc, char**argv){
   }
   size_t capacidad = 0;
   hash_t* hash = hash_crear(NULL);
+  if(!hash) {
+    fclose(archi);
+    exit(1);
+  }
   char* linea = NULL;
   ssize_t linealen = 0; 
   while((linealen = getline(&linea, &capacidad, archi) > 0)){

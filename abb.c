@@ -266,9 +266,10 @@ void vaciar_pila(pila_t* pila){
 // Avanza iterador
 bool abb_iter_in_avanzar(abb_iter_t *iter){
   bool fin = false;
+  int res;
   if(abb_iter_in_al_final(iter)) return false;
   abb_nodo_t* desapilado  = pila_desapilar(iter->pila);
-  int res = iter->cmp(desapilado->clave, iter->clave_hasta);  
+  if(iter->clave_hasta)  res = iter->cmp(desapilado->clave, iter->clave_hasta);  
   if(iter->clave_hasta){ 
     if(res == 0 || res > 0 ){
       vaciar_pila(iter->pila);
@@ -333,3 +334,27 @@ abb_iter_t* abb_iter_crear_desde(abb_t* arbol, const char* clave_desde, const ch
   }
   return iter;
 } 
+
+// Fuente: www.geeksforgeeks.org/how-to-determinate-if-a-binary-tree-is-balanced/        
+// Devuelve true si el arbol esta balanceado, false en caso contrairo.
+bool isbalanced(abb_nodo_t* nodo, int* altura){
+  int lh = 0, rh = 0;
+  
+  if(!nodo) {
+    *altura = 0;
+    return true;
+  }
+  
+  bool l = isbalanced(nodo->izquierda, &lh);
+  bool r = isbalanced(nodo->derecha, &rh);
+  
+  *altura = (lh > rh ? lh : rh) +1 ;
+  
+  if ((lh - rh >= 2) || (rh - lh >= 2)) return false;
+  else return l && r;
+}
+
+bool balanceado(abb_t* abb){
+  int altura = 0;
+  return isbalanced(abb->raiz, &altura);
+}
