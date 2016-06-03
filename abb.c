@@ -25,7 +25,7 @@ struct abb{
 struct abb_iter{
   char* clave_hasta;
   char* clave_desde;
-  const char* clave_anterior;
+  abb_nodo_t* anterior;
   abb_comparar_clave_t cmp;
   pila_t* pila;
 };
@@ -269,15 +269,17 @@ bool abb_iter_in_avanzar(abb_iter_t *iter){
   int res;
   if(abb_iter_in_al_final(iter)) return false;
   abb_nodo_t* desapilado  = pila_desapilar(iter->pila);
-  if(iter->clave_hasta)  res = iter->cmp(desapilado->clave, iter->clave_hasta);  
+  if(iter->clave_hasta)  res = iter->cmp(desapilado->clave, iter->clave_hasta);
+  
   if(iter->clave_hasta){ 
-    if(res == 0 || res > 0 ){
+    if(res == 0 ){
       vaciar_pila(iter->pila);
-      //pila_apilar(iter->pila, desapilado);
       fin = true;
-    }
+    } 
   }
   if(!fin && desapilado->derecha) apilar_nodos(iter, desapilado->derecha);
+  abb_nodo_t* actual = pila_ver_tope(iter->pila);
+  if (actual && iter->clave_hasta && iter->cmp(actual->clave, iter->clave_hasta)>0) vaciar_pila(iter->pila);
   return true;
 }
 
@@ -320,7 +322,7 @@ abb_iter_t* abb_iter_crear_desde(abb_t* arbol, const char* clave_desde, const ch
   if(clave_hasta) iter->clave_hasta = strdup(clave_hasta);
   bool fin = false;
   
-  if(arbol->cmp(clave_desde, clave_hasta) > 0) vaciar_pila(iter->pila);
+  if(clave_hasta && arbol->cmp(clave_desde, clave_hasta) > 0) vaciar_pila(iter->pila);
   else{
     while(!fin){
       abb_nodo_t* desapilado  = pila_desapilar(iter->pila);
@@ -332,6 +334,7 @@ abb_iter_t* abb_iter_crear_desde(abb_t* arbol, const char* clave_desde, const ch
       if(!fin && desapilado->derecha) apilar_nodos(iter, desapilado->derecha);
     }
   }
+  iter->anterior = NULL; 
   return iter;
 } 
 
