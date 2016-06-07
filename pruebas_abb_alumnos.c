@@ -16,26 +16,16 @@ int comparar(const char* cadena1, const char* cadena2){
 bool guardar_nuevo(abb_t* orig, abb_t* dest, const char** vector, int base, int tope, size_t cantidad){
   bool ok = true;
   int medio = (tope+base)/2;
-  if (medio == 0 || medio == (cantidad/2)-1 || medio >= cantidad-1) ok = false;  
-  //  if (abb_cantidad(dest) == cantidad/2) fin = true;
-  if(medio+1<cantidad && abb_pertenece(orig, vector[medio+1])) ok = false; 
-    abb_guardar(dest, vector[medio], &cantidad); 
-    if(ok){
-    //if(tope medio) tope = medio;
+  if (medio == 0 || medio== (cantidad/2)-1 || medio >= cantidad-1) ok = false;  
+  
+  abb_guardar(dest, vector[medio], &cantidad);
+  if (ok){
     ok = guardar_nuevo(orig, dest, vector, medio, tope, cantidad);  
-    abb_guardar(dest, vector[(medio+base)/2], &cantidad); //guardo temporalmente X
-    //tope = medio;
-    
-    guardar_nuevo(orig, dest, vector, medio, tope, cantidad);
-    //ok = guardar_nuevo(orig, dest, vector, medio, tope, cantidad); 
-    //abb_guardar(dest, vector[(medio+base)/2], &cantidad);
+    abb_guardar(dest, vector[(medio+base)/2], &cantidad); 
+  } 
+  if(medio == cantidad/2 ){  
+    ok = guardar_nuevo(orig, dest, vector, base, medio, cantidad); 
   }
-  printf("veces \n");
-  /*if(medio == cantidad/2 && !fin){  
-    printf("oie kha\n");
-    ok = guardar_nuevo(orig, dest, vector, 0, medio, cantidad); 
-    }*/
-  //abb_guardar(dest, vector[medio+1], &cantidad);
   return true;
 }
 
@@ -49,36 +39,16 @@ void abb_rebalanceado(abb_t* orig, abb_t* dest){
   for(size_t i = 0; i<cantidad ; i++){
     vector[i] = abb_iter_in_ver_actual(iter);
     abb_iter_in_avanzar(iter);
-  }// O(nlogn)    
-  
-  guardar_nuevo(orig, dest, vector, 0, cantidad, cantidad); //O(nlogn) 
-  printf("mi cantidad es %zu\n", abb_cantidad(dest));
-  abb_iter_t* u = abb_iter_in_crear(dest);
-  while(!abb_iter_in_al_final(u)){
-    printf("%s\n", (char*)abb_iter_in_ver_actual(u));
-    abb_iter_in_avanzar(u);
   }
   
+  guardar_nuevo(orig, dest, vector, 0, cantidad, cantidad); 
+
   for(size_t i = 0; i<cantidad ; i++){    
     abb_guardar(dest, vector[i], abb_obtener(orig, vector[i]));
-  } // O(nlogn)
-  //  printf("mi cantidad es %zu\n", abb_cantidad(dest));
+  }
   abb_iter_in_destruir(iter);
 }  
-// 90 100 110 120 130 140 150 160 170 180 190 200 xxx x x x x  x x  
-// cantidad 12
-//base tope  medio wardado 
-//  0        6    150     
-//  6   12     9    180
-//  9   12     10   190
-//  10  12     11   200
-//  
-//  9 + 10 /2 = 9
-//  6    12     9   180    
-//  
-//
-// 
-//
+
 void primera_prueba(){
   abb_t* abb = abb_crear(comparar, NULL);
   int vector[9] = {1,2,3,4,5,6,7,8,9};
@@ -151,48 +121,10 @@ void primera_prueba(){
     print_test("abb avanzar ", abb_iter_in_avanzar(iter));
   }
   abb_iter_in_destruir(iter);
-  
-  
+    
   abb_destruir(abb);
 }
 
-void prueba_balanceado_derecha(){
-  int a = 3;
-  abb_t* abb = abb_crear(comparar, NULL);
-  abb_guardar(abb, "50", &a);
-  abb_guardar(abb, "30", &a);
-  abb_guardar(abb, "60", &a);
-  abb_guardar(abb, "20", &a);
-  
-  print_test("arbol balanceado ", balanceado(abb));
-  
-
-  abb_destruir(abb);
-  
-  abb = abb_crear(comparar, NULL);
-  abb_guardar(abb, "50", &a);
-  abb_guardar(abb, "60", &a);
-  abb_guardar(abb, "70", &a);
-  abb_guardar(abb, "80", &a);
-  abb_guardar(abb, "90", &a);
-  abb_guardar(abb, "100", &a);
-  abb_guardar(abb, "110", &a);
-  abb_guardar(abb, "120", &a);
-  abb_guardar(abb, "130", &a);
-  abb_guardar(abb, "140", &a);
-  abb_guardar(abb, "150", &a);
-  //abb_guardar(abb, "160", &a); desde aca empieza a fallar
-  //abb_guardar(abb, "170", &a);
-  //abb_guardar(abb, "180", &a);
-
-  abb_t* abb2 = abb_crear(comparar, NULL);
-  
-  abb_rebalanceado(abb, abb2);
-  print_test("arbol1 no balanceado", !balanceado(abb));
-  print_test("arbol2  balanceado", balanceado(abb2));
-  
-  abb_destruir(abb);
-}
 
 void prueba_balanceado_izquierda(){
   int a = 3;
@@ -210,39 +142,31 @@ void prueba_balanceado_izquierda(){
   abb_guardar(abb, "110", &a);
   abb_guardar(abb, "100", &a);
   abb_guardar(abb, "90", &a); 
-  /*abb_guardar(abb, "80", &a);// desde aca fallaba
+  //
+  abb_guardar(abb, "80", &a);
   abb_guardar(abb, "70", &a);
-  */ //aca extra
-  /* abb_guardar(abb, "60", &a);
-  abb_guardar(abb, "59", &a);
-  abb_guardar(abb, "58", &a);
-  abb_guardar(abb, "57", &a);
-  abb_guardar(abb, "56", &a);
-  abb_guardar(abb, "55", &a);
-  abb_guardar(abb, "54", &a);
-  abb_guardar(abb, "53", &a);
-  abb_guardar(abb, "52", &a);
-  abb_guardar(abb, "51", &a);
-  abb_guardar(abb, "50", &a);
-  abb_guardar(abb, "49", &a); 
-  abb_guardar(abb, "48", &a);
-  abb_guardar(abb, "47", &a);
-  */
+  abb_guardar(abb, "60", &a);
+  abb_guardar(abb, "40", &a);
+  abb_guardar(abb, "32", &a);
+  abb_guardar(abb, "30", &a);
+  abb_guardar(abb, "29", &a);
+  abb_guardar(abb, "28", &a);
+  abb_guardar(abb, "27", &a);
+  abb_guardar(abb, "26", &a);
+  abb_guardar(abb, "25", &a);
+  abb_guardar(abb, "24", &a); 
+
   abb_t* abb2 = abb_crear(comparar, NULL);
   
   abb_rebalanceado(abb, abb2);
   print_test("arbol1 no balanceado", !balanceado(abb));
   print_test("arbol2  balanceado", balanceado(abb2));
   
-  printf("cantidad abb %zu\n", abb_cantidad(abb2));
-  
   abb_destruir(abb);
   abb_destruir(abb2);
 }
 
 void pruebas_abb_alumnos(){
-  //  primera_prueba();
-  //prueba_balanceado_derecha();
-  prueba_balanceado_izquierda();
-    
+  primera_prueba();
+  prueba_balanceado_izquierda();   
 }

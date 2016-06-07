@@ -231,12 +231,17 @@ size_t abb_cantidad(const abb_t *arbol){
   return  arbol->cantidad_nodos  ;
 }
 
+void pos_orden_destruir(abb_nodo_t* raiz, abb_destruir_dato_t destruir){
+  if(!raiz) return;
+  pos_orden_destruir(raiz->izquierda, destruir);
+  pos_orden_destruir(raiz->derecha, destruir);
+  
+  if (destruir) destruir(raiz->dato);
+  borrar_nodo(raiz);
+}
 
 void abb_destruir(abb_t *abb){
-  while(abb->cantidad_nodos != 0){
-    void* aux = abb_borrar(abb, abb->raiz->clave);   
-    if(abb->destruir_dato) abb->destruir_dato(aux);
-  }
+  pos_orden_destruir(abb->raiz, abb->destruir_dato);
   free(abb);
 }
 
@@ -303,13 +308,15 @@ void abb_iter_in_destruir(abb_iter_t* iter){
   free(iter);
 }
 
-void in_orden(abb_nodo_t* arbol,bool visitar(const char *clave, void *dato, void *extra), void* extra ){
-  if (!arbol) return; 
-  in_orden(arbol->izquierda, visitar, extra);
-  if(!visitar(arbol->clave, arbol->dato, extra)) return;
-  in_orden(arbol->derecha, visitar, extra);
+bool in_orden(abb_nodo_t* arbol,bool visitar(const char *clave, void *dato, void *extra), void* extra ){
+  if (!arbol) return true; 
+  if(!in_orden(arbol->izquierda, visitar, extra)) return false;
+  if(!visitar(arbol->clave, arbol->dato, extra)) return false;
+  if(!in_orden(arbol->derecha, visitar, extra)) return false; 
+  return true;
 }
-  
+
+
 void abb_in_order(abb_t *arbol, bool visitar(const char *, void *, void *), void *extra){
   in_orden(arbol->raiz, visitar, extra);
 }
