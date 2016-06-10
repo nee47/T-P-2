@@ -8,7 +8,6 @@
 struct mediana{
   heap_t* heap_max;
   heap_t* heap_min;
-  double actual; 
 };
 
 int comparar_max(const void* valor1, const void* valor2){
@@ -19,11 +18,11 @@ int comparar_max(const void* valor1, const void* valor2){
   return 0;
 }
 
-int comparar_min(const void* valor1, const void* valor2){
+int comparar_min(const void* valor2, const void* valor1){
   const double* v1 = valor1;
   const double* v2 = valor2;
-  if(*v1 < *v2) return 1;
-  if(*v1 > *v2) return -1;
+  if(*v1 > *v2) return 1;
+  if(*v1 < *v2) return -1;
   return 0;
 }
 
@@ -47,11 +46,12 @@ mediana_t* calculador_mediana_crear(){
 bool calculador_mediana_agregar_valor(mediana_t* mediana, double valor){
   bool res;
   double* val = malloc(sizeof(double));
+  if(!val) return false;
   *val = valor;
   if(heap_esta_vacio(mediana->heap_max) && heap_esta_vacio(mediana->heap_min)){
     return heap_encolar(mediana->heap_min, val);       
   }
-  if (valor > mediana->actual){
+  if (valor > calculador_mediana_obtener_mediana(mediana)){
     res = heap_encolar(mediana->heap_min, val);
   }
   else  res = heap_encolar(mediana->heap_max, val);
@@ -68,15 +68,12 @@ double calculador_mediana_obtener_mediana(mediana_t* mediana){
   
   if(heap_cantidad(mediana->heap_max)+heap_cantidad(mediana->heap_min) == 0) return 0;
   if(heap_cantidad(mediana->heap_max) == heap_cantidad(mediana->heap_min)){
-    mediana->actual  = (*(double*)heap_ver_max(mediana->heap_max) + *(double*)heap_ver_max(mediana->heap_min)) / 2;
-    return mediana->actual;
+    return (*(double*)heap_ver_max(mediana->heap_max) + *(double*)heap_ver_max(mediana->heap_min)) / 2;;
   }
   if(heap_cantidad(mediana->heap_min) > heap_cantidad(mediana->heap_max)){
-    mediana->actual = *(double*)heap_ver_max(mediana->heap_min);
-    return mediana->actual;
+    return *(double*)heap_ver_max(mediana->heap_min);
   }
-  else mediana->actual = *(double*)heap_ver_max(mediana->heap_max);
-  return mediana->actual;
+  else return  *(double*)heap_ver_max(mediana->heap_max);  
 }
 
 void calculador_mediana_destruir(mediana_t* mediana){

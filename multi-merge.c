@@ -28,12 +28,25 @@ void destruye_nodo(void* nodex){
   free(nodo);
 }
 
+bool procesar_linea(heap_t* heap, nodo_t* nodo, size_t capacidad){
+  bool fin = false;  
+  if (getline(&nodo->linea, &capacidad, nodo->archivo) <= 0){
+    fin = true;
+    destruye_nodo(nodo);
+  }
+  if(!fin && !heap_encolar(heap, nodo)){
+    heap_destruir(heap, destruye_nodo);
+    return false;
+  }
+  return true;
+}
 // se ejecuta asi valgrind ./multi-merge archivo1.txt archivo2.txt archivo3.txt
 int main(int argc, char** argv){
   if(argc < 2){
     printf("Uso ./multi-merge <Archivo1> <Archivo2> .. <ArchivoN>\n");
     exit(1);
   } 
+  //  bool fin = false;
   size_t  capacidad = 0;
   heap_t* heap = heap_crear(comparar);
   if(!heap) exit(1);
@@ -47,28 +60,17 @@ int main(int argc, char** argv){
       printf("No se pudo abrir algun archivo\n");
       exit(1);   
     }
-    nodo->linea = NULL;
-    getline(&nodo->linea, &capacidad, nodo->archivo);
-    if(!heap_encolar(heap, nodo)){
-      heap_destruir(heap, destruye_nodo);
-      fclose(nodo->archivo);
-      exit(1);
-    } 
+    //nodo->linea = NULL;
+    if(!procesar_linea(heap, nodo, capacidad)) exit(1);
   }
-  bool fin = false;
+  
+  //fin = false;
   nodo_t* aux;
   while(!heap_esta_vacio(heap)){ 
-    fin = false;
+    //fin = false;
     aux = heap_desencolar(heap);
-    printf("%s", aux->linea);
-    if (getline(&aux->linea, &capacidad, aux->archivo) <= 0){
-      fin = true;
-      destruye_nodo(aux);
-    }
-    if(!fin && !heap_encolar(heap, aux)){
-      heap_destruir(heap, destruye_nodo);
-      exit(1);
-    } 
+    if(aux) printf("%s", aux->linea);
+    if(!procesar_linea(heap, aux, capacidad)) exit(1);
   }
   
   heap_destruir(heap, NULL);

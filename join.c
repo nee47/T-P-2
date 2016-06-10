@@ -6,25 +6,42 @@
 #include "hash.h"
 #define ESPACIO ' '
 #define FIN '\0'
+#define MAX_LEN 254
 
+// Recorta una cadena hasta el indice que se le pasa
+// Devuelve una cadena alocada en memoria dinamica
+// Devuelve NULL si falla malloc devuelve NULL
+// Pre: str no es NULL
 char *substr(const char *str, size_t n){
   char* cadena = malloc(sizeof(char) * (n+1));
+  if(!cadena) return NULL;
   strncpy(cadena, str, n);
   cadena[n] = FIN;
   return cadena;
 }
 
-char* campo1(char* linea1){
+// Dada una cadena devuelve otra alocada en memoria dinamicamente recortada hasta donde se encuentre el primer caracter -espacio-
+// Pre: linea1 no es NULL
+char* obtener_campo1(char* linea1){
   char* campo_1 = substr(linea1, strlen(linea1) - strlen(strchr(linea1, ' ')));
   return campo_1;
 }
 
+// Junta 2 cadenas y las almacena en una tercera
+// Todas las cadenas son distinto de NULL
 char* acoplar(char** aux, char* linea1, char* linea2){
   linea1[strlen(linea1)-1] = FIN;
   *aux = stpcpy(*aux, linea1);   
   *aux = stpcpy(*aux, strchr(linea2, ESPACIO));   
   return *aux;
 }
+
+// Liberar un hash y cierra 2 archivos 
+void liberar(hash_t* hash, FILE* a1, FILE* a2){
+  if(hash) hash_destruir(hash);
+  fclose(a1);
+  fclose(a2);
+} 
 
 int main(int argc, char** argv){
   
@@ -43,8 +60,7 @@ int main(int argc, char** argv){
   }
   hash_t* hash = hash_crear(free);
   if(!hash){
-    fclose(archivo1);
-    fclose(archivo2);
+    liberar(hash, archivo1, archivo2);
     exit(1);
   }
   ssize_t len1 = 0, len2=0;
@@ -52,20 +68,18 @@ int main(int argc, char** argv){
   char* linea1 = NULL;
   char* linea2 = NULL;
   while((len2 = getline(&linea2, &capacidad, archivo2 ) > 0)){
-    char* campo_1 = campo1(linea2);
+    char* campo_1 = obtener_campo1(linea2);
     if(!hash_guardar(hash, campo_1, linea2)){
-      hash_destruir(hash);
-      fclose(archivo1);
-      fclose(archivo2);
+      liberar(hash, archivo1, archivo2);
       exit(1);
     }
     free(campo_1);
     linea2 = NULL;
   }
-
+  
   while((len1 = getline(&linea1, &capacidad, archivo1 ) > 0)){
-    char cadena[254];
-    char* campo_1 = campo1(linea1);
+    char cadena[MAX_LEN];
+    char* campo_1 = obtener_campo1(linea1);
     if(hash_pertenece(hash, campo_1)){
       char* aux = cadena;
       acoplar(&aux, linea1, (char*)hash_obtener(hash, campo_1));
@@ -73,10 +87,8 @@ int main(int argc, char** argv){
     }
     free(campo_1);
   }
-  hash_destruir(hash);
+  liberar(hash, archivo1, archivo2);
   free(linea1);
   free(linea2);
-  fclose(archivo1);
-  fclose(archivo2);
   return 0;
 }
