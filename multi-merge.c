@@ -21,6 +21,14 @@ int comparar(const void* cad1, const void* cad2){
   return 0;
 }
 
+// Crea el nodo
+nodo_t* nodo_crear(){
+  nodo_t* nodo_nuevo = malloc(sizeof(nodo_t));
+  if(!nodo_nuevo) return NULL;
+  nodo_nuevo->linea = NULL;
+  return nodo_nuevo;
+}
+
 // Libera la memoria pedida del struct nodo
 void destruye_nodo(void* nodex){
   nodo_t* nodo = nodex;
@@ -55,7 +63,7 @@ int main(int argc, char** argv){
   heap_t* heap = heap_crear(comparar);
   if(!heap) exit(1);
   for(size_t a = 1; a < argc; a++){
-    nodo_t* nodo = malloc(sizeof(nodo_t));
+    nodo_t* nodo = nodo_crear();
     if(!nodo) exit(1);
     nodo->archivo = fopen(argv[a], "r");
     if(!nodo->archivo){
@@ -64,7 +72,6 @@ int main(int argc, char** argv){
       printf("No se pudo abrir algun archivo\n");
       exit(1);   
     }
-    nodo->linea = NULL;
     if(!procesar_linea(heap, &nodo, &capacidad)) exit(1);
   }
   

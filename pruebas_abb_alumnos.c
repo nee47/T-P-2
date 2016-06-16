@@ -1,3 +1,4 @@
+
 #define _POSIX_C_SOURCE 200809L
 #include <stdio.h>
 #include <stdlib.h>
@@ -5,7 +6,7 @@
 #include "testing.h"
 #include <string.h>
 #include <time.h>
-#define VOL 10000
+#define VOL 5000
 
 // Estructura que se va a utilizar para guardar los pares clave, dato del arbol
 typedef struct pack{
@@ -46,22 +47,6 @@ bool obtener_par(const char* clave, void* dato, void* packi){
   return true;
 }
 
-// Vector que crea cadenas random a partir de numeros random
-// Utilizable en las pruebas
-// Puede haber claves repetidas
-char** crear_vector_cadenas(size_t largo){
-  size_t a, r ;
-  char cad[13];
-  srand((unsigned int)time(NULL));
-  char** vector = malloc(sizeof(char*) * largo);
-  if(!vector) return NULL;
-  for( a = 0; a < largo; a++){
-    r = /*a;*/ rand();
-    snprintf(cad, sizeof(cad),"%zu", r );
-    vector[a] = strdup(cad);
-  }
-  return vector;
-}
 
 // Libera la memoria de todas las cadenas del vector
 void liberar_cadenas(char** vec, size_t largo){
@@ -71,7 +56,7 @@ void liberar_cadenas(char** vec, size_t largo){
   }
   free(vec);
 }
-
+// Funcion comparar usada en el arbol
 int comparar(const char* cadena1, const char* cadena2){
   long int cad1, cad2;
   cad1 = strtol(cadena1, NULL, 10);
@@ -79,6 +64,29 @@ int comparar(const char* cadena1, const char* cadena2){
   if(cad1 > cad2) return 1;
   if(cad1 < cad2) return -1;
   else return 0;
+}
+
+// Vector que crea cadenas random a partir de numeros random
+// Utilizable en las pruebas
+// Puede haber claves repetidas
+char** crear_vector_cadenas(size_t largo){
+  size_t a, r ;
+  char cad[13];
+  srand((unsigned int)time(NULL));
+  char** vector = malloc(sizeof(char*) * largo);
+  if(!vector) return NULL;
+  abb_t* abb= abb_crear(comparar, NULL);
+  for( a = 0; a < largo; a++){
+    r = /*a;*/ rand();
+    snprintf(cad, sizeof(cad),"%zu", r );
+    if(!abb_pertenece(abb, cad)){
+      abb_guardar(abb, cad, &a);
+      vector[a] = strdup(cad);
+    }
+    else a--;
+  }
+  abb_destruir(abb);
+  return vector;
 }
 
 // Dado 2 vectores uno de origen y uno de destino. Se inserta 
@@ -268,11 +276,13 @@ void prueba_volumen(){
   abb_t* abb = abb_crear(comparar, NULL);
   size_t a;
   print_test("ABB creado", abb);
-  
+  size_t valores[VOL];
   for( a = 0; a<VOL; a++){
-    ok = abb_guardar(abb, vec[a], &a);
+    valores[a] = a ;  
+    ok = abb_guardar(abb, vec[a], &valores[a]);
     if(!ok) break;
   }
+  printf("SE GUARDARON %zu elementos\n", abb_cantidad(abb));
   print_test("elementos guardados", ok);
   
   print_test("el abb esta desbalanceado", !balanceado(abb));
@@ -287,8 +297,15 @@ void prueba_volumen(){
     ok = abb_pertenece(abb2, vec[a]); 
     if (!ok) break;
   }
-  
+
   print_test("Todos los elementos pertenecen", ok);
+
+  for(a = 0; a < VOL; a++) {
+    ok = *(size_t*)abb_borrar(abb2, vec[a]) == valores[a]; 
+    if (!ok) break;
+  }
+
+  print_test("Todos los elementos fueron borrados exitosamente", ok);
   abb_destruir(abb);
   abb_destruir(abb2);
   liberar_cadenas(vec, VOL);
