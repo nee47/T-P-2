@@ -7,55 +7,7 @@
 #include <string.h>
 #include <time.h>
 #define VOL 5000
-
-// Estructura que se va a utilizar para guardar los pares clave, dato del arbol
-typedef struct pack{
-  const char** claves;
-  void** valores;
-  size_t indice;
-  bool* guardado;
-}pack_t;
-
-// Crea la estructura pack.
-// Deulve NULL si hay algun fallo de malloc
-pack_t* pack_crear(size_t cantidad){
-  pack_t* pack = malloc(sizeof(pack_t));
-  if(!pack) return NULL;
-  pack->claves = malloc(sizeof(char*) * cantidad);
-  if(!pack->claves){
-    free(pack);
-    return NULL;
-  }
-  pack->valores = malloc(sizeof(void*) * cantidad);
-  if(!pack->valores){
-    free(pack->claves);
-    free(pack);
-    return NULL;
-  }
-  pack->guardado = malloc(sizeof(bool)*cantidad);
-  pack->indice = 0;
-  return pack;
-}
-// Funcion para extraer los datos del arbol, usando la primitiva in order
-// Siempre devuelve true ya que se necesitan todos los elementos 
-bool obtener_par(const char* clave, void* dato, void* packi){
-  pack_t* pack = packi;
-  pack->claves[pack->indice] = clave;
-  pack->valores[pack->indice] = dato;
-  pack->guardado[pack->indice] = false;
-  pack->indice++;
-  return true;
-}
-
-
-// Libera la memoria de todas las cadenas del vector
-void liberar_cadenas(char** vec, size_t largo){
-  size_t a;
-  for( a = 0; a < largo; a++){
-    free(vec[a]);
-  }
-  free(vec);
-}
+#include "abb_utils.h"
 // Funcion comparar usada en el arbol
 int comparar(const char* cadena1, const char* cadena2){
   long int cad1, cad2;
@@ -65,7 +17,6 @@ int comparar(const char* cadena1, const char* cadena2){
   if(cad1 < cad2) return -1;
   else return 0;
 }
-
 // Vector que crea cadenas random a partir de numeros random
 // Utilizable en las pruebas
 // Puede haber claves repetidas
@@ -89,45 +40,13 @@ char** crear_vector_cadenas(size_t largo){
   return vector;
 }
 
-// Dado 2 vectores uno de origen y uno de destino. Se inserta 
-// recursivamente todas las posiciones medio de un vector que tiene
-// las claves obtenidas en orden del arbol de origen
-bool guardar_nuevo(abb_t* orig, abb_t* dest, pack_t* pack, int base, int tope, size_t cantidad){
-  int medio = (tope+base)/2;
-  if (base>tope || base == medio){
-    return false;
+void liberar_cadenas(char** vec, size_t largo){
+  size_t a;
+  for(a=0; a<largo; a++){
+    free(vec[a]);
   }
-  abb_guardar(dest, pack->claves[medio], pack->valores[medio]);
-  pack->guardado[medio] = true;
-  guardar_nuevo(orig, dest, pack, base,  medio, cantidad);
-  guardar_nuevo(orig, dest, pack, medio+1, tope, cantidad);
-
-  return false;
+  free(vec);
 }
-
-// Libera la memoria pedida de la estructuara pack
-void destruir_pack(pack_t* pack){
-  free(pack->valores);
-  free(pack->claves);
-  free(pack->guardado);
-  free(pack);
-}
-
-// Dado 2 arboles uno de origen, con o sin elementos y uno vacio
-// Se inserta de tal manera de que el arbol de destino, quede
-// balanceado con las misma claves y datos del arbol de origen
-void abb_rebalanceado(abb_t* orig, abb_t* dest){  
-  size_t cantidad = abb_cantidad(orig);
-  pack_t* pack = pack_crear(cantidad);
-  abb_in_order(orig, obtener_par, pack);
-  guardar_nuevo(orig, dest, pack, 0, cantidad, cantidad);
-  for(size_t i = 0; i<cantidad ; i++){    
-    if(!pack->guardado[i]) {
-      abb_guardar(dest, pack->claves[i], pack->valores[i]);     
-    }
-  }
-  destruir_pack(pack);
-}  
 
 void primera_prueba(){
   printf("PRUEBA ABB ITER CREAR DESDE\n\n");

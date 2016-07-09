@@ -223,7 +223,7 @@ bool abb_pertenece(const abb_t *abb, const char *clave){
   return *arbol ? (*arbol)->dato : NULL;
 }
 
-size_t abb_cantidad(const abb_t *arbol){
+size_t abb_cantidad(abb_t *arbol){
   return  arbol->cantidad_nodos  ;
 }
 
